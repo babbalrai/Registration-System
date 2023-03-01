@@ -13,6 +13,7 @@
     "@types/node": "^18.0.6",
     "conn": "^0.0.4",
     "express": "^4.18.2",
+    "hbs": "^4.2.0",
     "mongoose": "^7.0.0",
     "node-fetch": "^3.2.6"
   }
