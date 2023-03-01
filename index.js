@@ -4,6 +4,7 @@ const hbs = require('hbs')
 require("./conn");
 const Register = require("./register")
 const bodyParser = require('body-parser');
+const bcrypt = require("bcrypt")
 
 
 
@@ -74,21 +75,29 @@ app.post('/register',async(req,res)=>{
 })
 
 
-app.post('/login',(req,res)=>{
+app.post('/login',async(req,res)=>{
 try{
   const email = req.body.email;
   const password = req.body.password;
+  console.log(password)
+
   const useremail= await Register.findOne({email:email})
-  if(useremail.password === password){
-    res.status(201).render("index")
-  }
-  else{
-    res.send("password are not matching")
-  }
+  console.log(email.password)
+  const match = await bcrypt.compare(password,useremail.password);
+  console.log(match)
+  console.log(email.password)
+    if(match){
+      res.status(201).render("index")
+    }
+    else{
+      res.send("invalid password Details")
+    }
+  
 
 }
 catch(err){
   res.status(400).send("invalid login details")
+  console.log(err)
 }
 })
 

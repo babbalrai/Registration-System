@@ -1,4 +1,5 @@
 const mongoose = require("mongoose")
+const bcrypt = require("bcrypt")
 const employeeschema = new mongoose.Schema({
     firstname:{
         type:String,
@@ -38,6 +39,14 @@ const employeeschema = new mongoose.Schema({
  
 })
 
+employeeschema.pre("save",async function(next){
+   if(this.isModified("password")){
+    console.log(`the current password is ${this.password}`)
+    this.password = await bcrypt.hash(this.password,10);
+    console.log(`the courrent passwrod is ${this.passowrd}`)
+    this.confirmpassword=undefined
+   }
+})
 
 const Register = new mongoose.model("Register",employeeschema)
 module.exports = Register;
