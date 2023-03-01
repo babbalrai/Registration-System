@@ -2,12 +2,13 @@ const express = require('express')
 const path = require("path");
 const hbs = require('hbs')
 require("./conn");
-const register = require("./register")
+const Register = require("./register")
+const bodyParser = require('body-parser');
 
 
 
 const app = express();
-app.use(express.urlencoded({extended:false}));
+
 const port = 3000;
 const static_path = path.join(__dirname,"/public")
 // console.log(path.join(__dirname,"/public"));
@@ -21,6 +22,8 @@ app.set('views', path.join(__dirname,"/views"))
 app.set('view engine', 'hbs')
 app.set("views",template_path);
 hbs.registerPartials(partials_path)
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:true}));
 
 app.get('/',(req,res)=>{
   res.render("index")
@@ -37,12 +40,15 @@ app.get('/secret',(req,res)=>{
 
 
 
-app.post('/register',(req,res)=>{
+app.post('/register',async(req,res)=>{
   try{
+    console.log(req.body.firstname)
+    console.log(req.body.password)
+    console.log(req.body.confirmpassword)
     const password1 = req.body.password;
-    const confirm = req.body.confirmpassword;
+    const confirm = req.body.confirmpassword
     if(password1 == confirm){
-     const  registerEmployee = new Register({
+     const registerEmployee = new Register({
       firstname:req.body.firstname,
       lastname:req.body.lastname,
       email:req.body.email,
@@ -51,15 +57,42 @@ app.post('/register',(req,res)=>{
       password:req.body.password,
       confirmpassword:req.body.confirmpassword,
      })
+     const registered = await registerEmployee.save()
+     console.log(registered)
+    res.status(201).render("index")
     }
     else{
       res.send("password not matching")
     }
+    
+
   }
   catch (err){
-    res.status(400).send(error)
+    res.status(400).send(err)
+    console.log(err)
   }
 })
+
+
+app.post('/login',(req,res)=>{
+try{
+  const email = req.body.email;
+  const password = req.body.password;
+  const useremail= await Register.findOne({email:email})
+  if(useremail.password === password){
+    res.status(201).render("index")
+  }
+  else{
+    res.send("password are not matching")
+  }
+
+}
+catch(err){
+  res.status(400).send("invalid login details")
+}
+})
+
+
 app.listen(port,()=>{
   console.log(`server is ruunig at port no ${port}`)
 })
