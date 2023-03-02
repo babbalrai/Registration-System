@@ -58,6 +58,9 @@ app.post('/register',async(req,res)=>{
       password:req.body.password,
       confirmpassword:req.body.confirmpassword,
      })
+     const token = await registerEmployee.generateAuthToken();
+     console.log("the token part"+token)
+
      const registered = await registerEmployee.save()
      console.log(registered)
     res.status(201).render("index")
@@ -86,6 +89,8 @@ try{
   const match = await bcrypt.compare(password,useremail.password);
   console.log(match)
   console.log(email.password)
+  const token = await registerEmployee.generateAuthToken();
+  console.log("the token part"+token)
     if(match){
       res.status(201).render("index")
     }
